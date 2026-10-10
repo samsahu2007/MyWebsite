@@ -23,7 +23,7 @@ form.addEventListener("submit", async function(event) {
     const formData = {fname: firstname, lname: lastname, email: emailValue};
     // Process your server API call here
     try{
-        const response = await fetch("http://sammy1510.southeastasia.cloudapp.azure.com/api/brevo_mailer.php", 
+        const response = await fetch("https://sammy1510.southeastasia.cloudapp.azure.com/api/brevo_mailer.php", 
                                      {
                                           method: "POST",
                                           headers: {
