@@ -34,7 +34,7 @@ form.addEventListener("submit", async function(event) {
         if (response.ok) {
             const data = await response.json(); // Parse incoming JSON data
             console.log("Success:", data);
-            alert("Registration successful!");
+            alert("Registration successful!. Please check your email for confirmation");
         } else {
             // Handle server-side errors (e.g., 400 Bad Request, 500 Server Error)
             console.error("Server error status:", response.status);
