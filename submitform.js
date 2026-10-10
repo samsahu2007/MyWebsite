@@ -1,43 +1,48 @@
-document.getElementById('contactForm').addEventListener('submit', async (event) => {
-    // Prevent the standard HTML browser reload or redirect
-    event.preventDefault(); 
-
-    const statusDiv = document.getElementById('formStatus');
-    const submitBtn = document.getElementById('submitBtn');
+const form = document.getElementById("contactform_form");
+form.addEventListener("submit", async function(event) {
+  // Prevent the default browser reload page behavior
+  event.preventDefault(); 
+  
+  // Extract values
+  const emailValue = document.getElementById("email").value;
+  const firstname = document.getElementById("fname").value;
+  const lastname = document.getElementById("lname").value;
     
-    // UI Feedback: Show loading state
-    statusDiv.style.color = "blue";
-    statusDiv.innerText = "Sending your email...";
-    submitBtn.disabled = true;
-
-    // Automatically package all inputs (fname, lname, email) based on their "name" attributes
-    const formData = new FormData(event.target);
-
-    try {
-        // Send data directly to your functional Azure VM endpoint
-        const response = await fetch('http://20.212.20', {
-            method: 'POST',
-            body: formData
-        });
-      // Parse the JSON response coming from Brevo via your PHP script
-        const result = await response.json();
-
+  // Basic validation logic
+  if (emailValue === "") {
+    alert("Please enter a valid email address!");
+  } 
+  else if (firstname === ""){
+    alert("Please enter your first name");
+  }
+  else if (lastname === ""){
+    alert("Please enter your last name");
+  }
+  else {
+    console.log("Form Submitted Successfully. Data:", { email: emailValue });
+    // Process your server API call here
+    try{
+        const formData = {fname: firstname, lname: lastname, email: emailValue};
+        const response = await fetch("http://sammy1510.southeastasia.cloudapp.azure.com/api/brevo_mailer.php", 
+                                     {
+                                          method: "POST",
+                                          headers: {
+                                          "Content-Type": "application/json"
+                                      },
+                                      body: JSON.stringify(formData)
+                                    });
         if (response.ok) {
-            // Success! (HTTP Status 200)
-            statusDiv.style.color = "green";
-            statusDiv.innerText = "Success! Your form has been submitted and email sent. 🎉";
-            event.target.reset(); // Clear the form fields
+            const data = await response.json(); // Parse incoming JSON data
+            console.log("Success:", data);
+            alert("Registration successful!");
         } else {
-            // Server error returned from your PHP/Brevo engine (e.g. 400 or 401)
-            statusDiv.style.color = "red";
-            statusDiv.innerText = `Server Error: ${result.message || 'Submission failed.'}`;
+            // Handle server-side errors (e.g., 400 Bad Request, 500 Server Error)
+            console.error("Server error status:", response.status);
+            alert("Submission failed. Please try again.");
         }
-    } catch (error) {
-        // Catch network level errors (e.g., VM is down or blocked by browser Mixed Content rules)
-        console.error("Network Error Details:", error);
-        statusDiv.style.color = "red";
-        statusDiv.innerText = "Failed to connect to the email server. Please check your connection.";
-    } finally {// Re-enable the button after the processing finishes
-        submitBtn.disabled = false;
-    }
+    } catch (error){
+        console.error("Network connection error:", error);
+        alert("Network error. Check your internet connection.");
+    }   
+  }
 });
